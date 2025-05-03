@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"io"
+	// "os"
 
 	dockerImage "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/container"
@@ -42,11 +44,14 @@ func createContainer(ctx context.Context, image string) (string, error) {
 
 	// Pull the Docker image if not already available
 	reader, err := cli.ImagePull(ctx, image, dockerImage.PullOptions{})
-	log.Printf("Pulling image %s %s",image,dockerImage.PullOptions{})
+	log.Printf("Pulling image %s",image)
 	if err != nil {
 		return "", fmt.Errorf("failed to pull Docker image %s: %w", image, err)
 	}
 	defer reader.Close()
+	// io.Copy(os.Stdout, reader)
+	io.Copy(io.Discard, reader)
+	log.Printf("Image %s ready",image)
 
 	// Create container config with a working directory
 	config := &container.Config{

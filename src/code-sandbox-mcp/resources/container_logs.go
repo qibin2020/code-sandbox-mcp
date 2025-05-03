@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"io"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/pkg/stdcopy"
@@ -39,9 +40,22 @@ func GetContainerLogs(ctx context.Context, request mcp.ReadResourceRequest) ([]m
 	}
 	defer reader.Close()
 
+	inspect, err := cli.ContainerInspect(ctx, containerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to inspect container: %w", err)
+	}
+
 	var b strings.Builder
-	if _, err := stdcopy.StdCopy(&b, &b, reader); err != nil {
-		return nil, fmt.Errorf("error copying container logs: %w", err)
+	if inspect.Config.Tty {
+		// TTY containers output a raw stream
+		if _, err := io.Copy(&b, reader); err != nil {
+			return nil, fmt.Errorf("error reading TTY container logs: %w", err)
+		}
+	} else {
+		// Non-TTY containers use multiplexed streams
+		if _, err := stdcopy.StdCopy(&b, &b, reader); err != nil {
+			return nil, fmt.Errorf("error copying container logs: %w", err)
+		}
 	}
 
 	// Combine them. You could also return them separately if you prefer.
