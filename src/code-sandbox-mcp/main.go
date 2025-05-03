@@ -5,43 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
-	"github.com/Automata-Labs-team/code-sandbox-mcp/installer"
 	"github.com/Automata-Labs-team/code-sandbox-mcp/resources"
 	"github.com/Automata-Labs-team/code-sandbox-mcp/tools"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
-
-func init() {
-	// Check for --install flag
-	installFlag := flag.Bool("install", false, "Add this binary to Claude Desktop config")
-	noUpdateFlag := flag.Bool("no-update", false, "Disable auto-update check")
-	flag.Parse()
-
-	if *installFlag {
-		if err := installer.InstallConfig(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-		os.Exit(0)
-	}
-
-	// Check for updates unless disabled
-	if !*noUpdateFlag {
-		if hasUpdate, downloadURL, err := installer.CheckForUpdate(); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: Failed to check for updates: %v\n", err)
-			os.Exit(1)
-		} else if hasUpdate {
-			fmt.Println("Updating to new version...")
-			if err := installer.PerformUpdate(downloadURL); err != nil {
-				fmt.Fprintf(os.Stderr, "Warning: Failed to update: %v\n", err)
-			}
-			fmt.Println("Update complete. Restarting...")
-		}
-	}
-}
 
 func main() {
 	port := flag.String("port", "9520", "Port to listen on")

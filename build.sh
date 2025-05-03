@@ -90,14 +90,14 @@ rm -f bin/code-sandbox-mcp*
 
 # Build for Linux
 build_for_platform linux amd64 ""
-build_for_platform linux arm64 ""
+#build_for_platform linux arm64 ""
 
 # Build for macOS
-build_for_platform darwin amd64 ""
-build_for_platform darwin arm64 ""
+#build_for_platform darwin amd64 ""
+#build_for_platform darwin arm64 ""
 
 # Build for Windows
-build_for_platform windows amd64 ".exe"
-build_for_platform windows arm64 ".exe"
+#build_for_platform windows amd64 ".exe"
+#build_for_platform windows arm64 ".exe"
 
 echo -e "\n${GREEN}Build process completed!${NC}" 
