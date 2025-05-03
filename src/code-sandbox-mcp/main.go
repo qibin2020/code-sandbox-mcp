@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Automata-Labs-team/code-sandbox-mcp/resources"
-	"github.com/Automata-Labs-team/code-sandbox-mcp/tools"
+	"github.com/qibin2020/code-sandbox-mcp/resources"
+	"github.com/qibin2020/code-sandbox-mcp/tools"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
@@ -169,11 +169,14 @@ func main() {
 			})
 		}
 	case "sse":
+		log.Printf("SSE mode")
 		sseServer := server.NewSSEServer(s)
+		// log.Printf("SSE base URL %s", sseServer.baseURL)
 		if err := sseServer.Start(fmt.Sprintf(":%s", *port)); err != nil {
 			s.SendNotificationToClient(context.Background(), "notifications/error", map[string]interface{}{
 				"message": fmt.Sprintf("Failed to start SSE server: %v", err),
 			})
+			log.Printf("SSE fail")
 		}
 	default:
 		s.SendNotificationToClient(context.Background(), "notifications/error", map[string]interface{}{

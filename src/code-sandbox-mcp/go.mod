@@ -1,4 +1,4 @@
-module github.com/Automata-Labs-team/code-sandbox-mcp
+module github.com/qibin2020/code-sandbox-mcp
 
 go 1.24.0
 

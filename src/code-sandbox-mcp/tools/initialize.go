@@ -3,6 +3,7 @@ package tools
 import (
 	"context"
 	"fmt"
+	"log"
 
 	dockerImage "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/container"
@@ -41,6 +42,7 @@ func createContainer(ctx context.Context, image string) (string, error) {
 
 	// Pull the Docker image if not already available
 	reader, err := cli.ImagePull(ctx, image, dockerImage.PullOptions{})
+	log.Printf("Pulling image %s %s",image,dockerImage.PullOptions{})
 	if err != nil {
 		return "", fmt.Errorf("failed to pull Docker image %s: %w", image, err)
 	}
