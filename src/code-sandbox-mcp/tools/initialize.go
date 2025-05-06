@@ -22,8 +22,14 @@ func InitializeEnvironment(ctx context.Context, request mcp.CallToolRequest) (*m
 		image = "python:3.12-slim-bookworm"
 	}
 
+	name, ok := request.Params.Arguments["name"].(string)
+	if !ok {
+		// Default to a slim debian image with Python pre-installed
+		name = ""
+	}
+
 	// Create and start the container
-	containerId, err := createContainer(ctx, image)
+	containerId, err := createContainer(ctx, image, name)
 	if err != nil {
 		return mcp.NewToolResultText(fmt.Sprintf("Error: %v", err)), nil
 	}
@@ -32,7 +38,7 @@ func InitializeEnvironment(ctx context.Context, request mcp.CallToolRequest) (*m
 }
 
 // createContainer creates a new Docker container and returns its ID
-func createContainer(ctx context.Context, image string) (string, error) {
+func createContainer(ctx context.Context, image string, name string) (string, error) {
 	cli, err := client.NewClientWithOpts(
 		client.FromEnv,
 		client.WithAPIVersionNegotiation(),
@@ -42,16 +48,36 @@ func createContainer(ctx context.Context, image string) (string, error) {
 	}
 	defer cli.Close()
 
+	// check whether exist
+	if name!="" {
+		log.Printf("Finding container with existing name: %s",name)
+		info, err := cli.ContainerInspect(ctx, name)
+		if err!=nil && !client.IsErrNotFound(err){
+			return "",fmt.Errorf("failed to check existing Docker container: %w", err)
+		}
+
+		if err == nil {
+			if info.State != nil && info.State.Running {
+				log.Printf("Found existing container %s",info.ID)
+				return info.ID,nil
+			}
+			// else if container not running, rm it
+			if err := cli.ContainerRemove(ctx, name, container.RemoveOptions{}); err != nil {
+				return "",fmt.Errorf("failed to rm existing stopped Docker container: %w", err)
+			}
+		}
+	}
+
 	// Pull the Docker image if not already available
 	reader, err := cli.ImagePull(ctx, image, dockerImage.PullOptions{})
-	log.Printf("Pulling image %s",image)
+	// log.Printf("Pulling image %s",image)
 	if err != nil {
 		return "", fmt.Errorf("failed to pull Docker image %s: %w", image, err)
 	}
 	defer reader.Close()
 	// io.Copy(os.Stdout, reader)
 	io.Copy(io.Discard, reader)
-	log.Printf("Image %s ready",image)
+	// log.Printf("Image %s ready",image)
 
 	// Create container config with a working directory
 	config := &container.Config{
@@ -74,7 +100,7 @@ func createContainer(ctx context.Context, image string) (string, error) {
 		hostConfig,
 		nil,
 		nil,
-		"",
+		name,
 	)
 	if err != nil {
 		return "", fmt.Errorf("failed to create container: %w", err)
@@ -85,5 +111,6 @@ func createContainer(ctx context.Context, image string) (string, error) {
 		return "", fmt.Errorf("failed to start container: %w", err)
 	}
 
+	log.Printf("Container Ready %s:%s",name,resp.ID)
 	return resp.ID, nil
 }

@@ -30,6 +30,10 @@ func main() {
 			mcp.Description("Docker image to use as the base environment (e.g., 'python:3.12-slim-bookworm')"),
 			mcp.DefaultString("python:3.12-slim-bookworm"),
 		),
+		mcp.WithString("name",
+			mcp.Description("Docker container name to use. Running container with same name will directly return"),
+			mcp.DefaultString(""),
+		),
 	)
 
 	// Copy a directory to the sandboxed filesystem
