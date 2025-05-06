@@ -196,19 +196,14 @@ jobs:
           prerelease: ${{ github.event.inputs.prerelease == 'true' }}
           files: |
             bin/code-sandbox-mcp-linux-amd64
-            bin/code-sandbox-mcp-linux-arm64
-            bin/code-sandbox-mcp-darwin-amd64
             bin/code-sandbox-mcp-darwin-arm64
-            bin/code-sandbox-mcp-windows-amd64.exe
-            bin/code-sandbox-mcp-windows-arm64.exe
           body: |
             ## 🎉 Release v${{ steps.get_version.outputs.version }}
             
             ${{ steps.get_version.outputs.changes }}
             
             ### 📦 Included Binaries
-            - 🐧 Linux (amd64, arm64)
-            - 🍎 macOS (amd64, arm64)
-            - 🪟 Windows (amd64, arm64)
+            - 🐧 Linux (amd64)
+            - 🍎 macOS (arm64)
             
             $(cat bin/checksums.txt) 

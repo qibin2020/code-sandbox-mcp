@@ -94,7 +94,7 @@ build_for_platform linux amd64 ""
 
 # Build for macOS
 #build_for_platform darwin amd64 ""
-#build_for_platform darwin arm64 ""
+build_for_platform darwin arm64 ""
 
 # Build for Windows
 #build_for_platform windows amd64 ".exe"
