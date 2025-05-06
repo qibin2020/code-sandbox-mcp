@@ -37,8 +37,9 @@ func stopAndRemoveContainer(ctx context.Context, containerId string) error {
 	defer cli.Close()
 
 	// Stop the container with a timeout
+	// Now we do it forcely (since exec is fg)
 	timeout := 10 // seconds
-	if err := cli.ContainerStop(ctx, containerId, container.StopOptions{Timeout: &timeout}); err != nil {
+	if err := cli.ContainerStop(ctx, containerId, container.StopOptions{Timeout: &timeout, Signal: "SIGKILL"}); err != nil {
 		return fmt.Errorf("failed to stop container: %w", err)
 	}
 
